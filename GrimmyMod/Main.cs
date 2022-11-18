@@ -10,6 +10,8 @@ using Sims3.UI.CAS;
 using Sims3.UI;
 using Sims3.Gameplay.CAS;
 using Sims3.SimIFace.CAS;
+using Sims3.Gameplay.Autonomy;
+using Sims3.Gameplay.UI;
 
 //Template Created by Battery
 
@@ -90,18 +92,18 @@ namespace probablyzora.GrimmyMod
             Skill skill = sim.SkillManager.AddElement(SkillNames.Logic);
             if (sim.SkillManager.GetSkillLevel(SkillNames.Logic) < GrimReaper.kMinLogicSkill)
             {
-                int @int = RandomUtil.GetInt(GrimReaper.kMinLogicSkill, GrimReaper.kMaxLogicSkill);
-                skill.ForceSkillLevelUp(@int);
+                int RandomSkillLevel = RandomUtil.GetInt(GrimReaper.kMinLogicSkill, GrimReaper.kMaxLogicSkill);
+                skill.ForceSkillLevelUp(RandomSkillLevel);
             }
 
             // Sets Chess Hidden Skill if skill level is below minimum.
             skill = sim.SkillManager.AddElement(SkillNames.Chess);
             if (sim.SkillManager.GetSkillLevel(SkillNames.Chess) < GrimReaper.kMinChessSkill)
             {
-                int @int = RandomUtil.GetInt(GrimReaper.kMinChessSkill, GrimReaper.kMaxChessSkill);
-                skill.ForceSkillLevelUp(@int);
+                int RandomSkillLevel = RandomUtil.GetInt(GrimReaper.kMinChessSkill, GrimReaper.kMaxChessSkill);
+                skill.ForceSkillLevelUp(RandomSkillLevel);
             }
-            
+
             // Gives Reaper smoke effect if not in reaper situation ( that already gives smoke ) and disable it if it does???
             VisualEffect ReaperSmokeFX = null;
             if (!ServiceSituation.IsSimOnJob(sim))
@@ -110,16 +112,24 @@ namespace probablyzora.GrimmyMod
                 ReaperSmokeFX.ParentTo(sim, Sim.FXJoints.Pelvis);
                 ReaperSmokeFX.Start();
             }
-            else
+
+            // Freeze or remove??? all Physiological Needs
+            if (!ServiceSituation.IsSimOnJob(sim))
             {
-                ReaperSmokeFX.Stop();
-                ReaperSmokeFX.Dispose();
-                ReaperSmokeFX = null;
-
+                (Sims3.Gameplay.UI.Responder.Instance.HudModel as HudModel).OnSimFavoritesChanged(sim.ObjectId);
+                sim.Motives.SetValue(CommodityKind.Energy, 100f);
+                sim.Motives.SetValue(CommodityKind.Bladder, 100f);
+                sim.Motives.SetValue(CommodityKind.Hunger, 100f);
+                sim.Motives.SetValue(CommodityKind.Hygiene, 100f);
+                sim.Motives.RemoveMotive(CommodityKind.Energy);
+                sim.Motives.RemoveMotive(CommodityKind.Bladder);
+                sim.Motives.RemoveMotive(CommodityKind.Hunger);
+                sim.Motives.RemoveMotive(CommodityKind.Hygiene);
             }
-
 
             return ListenerAction.Keep;
         }
+        
+
     }
 }
