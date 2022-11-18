@@ -113,6 +113,8 @@ namespace probablyzora.GrimmyMod
                 int RandomSkillLevel = RandomUtil.GetInt(GrimReaper.kMinChessSkill, GrimReaper.kMaxChessSkill);
                 skill.ForceSkillLevelUp(RandomSkillLevel);
             }
+            // testing out requesting walkstyles???
+            sim.RequestWalkStyle(Sim.WalkStyle.DeathWalk);
 
             // Gives Reaper smoke effect if not in reaper situation ( that already gives smoke ) and disable it if it does???
             VisualEffect ReaperSmokeFX = null;
@@ -123,14 +125,9 @@ namespace probablyzora.GrimmyMod
                 ReaperSmokeFX.Start();
             }
 
-            // Freeze or remove??? all Physiological Needs
+            // Remove Physiological Needs
             if (!ServiceSituation.IsSimOnJob(sim))
             {
-                (Sims3.Gameplay.UI.Responder.Instance.HudModel as HudModel).OnSimFavoritesChanged(sim.ObjectId);
-                sim.Motives.SetValue(CommodityKind.Energy, 100f);
-                sim.Motives.SetValue(CommodityKind.Bladder, 100f);
-                sim.Motives.SetValue(CommodityKind.Hunger, 100f);
-                sim.Motives.SetValue(CommodityKind.Hygiene, 100f);
                 sim.Motives.RemoveMotive(CommodityKind.Energy);
                 sim.Motives.RemoveMotive(CommodityKind.Bladder);
                 sim.Motives.RemoveMotive(CommodityKind.Hunger);
