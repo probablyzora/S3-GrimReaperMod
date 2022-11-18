@@ -42,6 +42,21 @@ namespace probablyzora.GrimmyMod
             }
         }
 
+        /// <summary>
+        /// Checks if SimDescription is in the GrimReaper service pool.
+        /// </summary>
+        /// <param name="simDescription">SimDescription to check.</param>
+        /// <returns>True if simDescription is a Grim Reaper, False otherwise.</returns>
+        static bool IsGrimReaper(SimDescription simDescription)
+        {
+            var grimReaper = GrimReaper.Instance;
+            if (grimReaper == null)
+                return false;
+            if (grimReaper.IsSimDescriptionInPool(simDescription))
+                return true;
+            return false;
+        }
+
         static ListenerAction OnSimInstantiated(Event e)
         {
             Sim sim = null;
@@ -58,18 +73,13 @@ namespace probablyzora.GrimmyMod
                         sim = (Sim)e.Actor;
                 }
             }
-            string reaperFirstName = StringTable.GetLocalizedString("Gameplay/SimNames/Custom:GrimReaperFirstName");
-            string reaperLastName = StringTable.GetLocalizedString("Gameplay/SimNames/Custom:GrimReaperLastName");
 
             if (sim == null)
                 return ListenerAction.Keep;
-            if (sim.FirstName != reaperFirstName || sim.LastName != reaperLastName)
-            {
-                if (sim.Service == null)
-                    return ListenerAction.Keep;
-                if (!(sim.Service is GrimReaper))
-                    return ListenerAction.Keep;
-            }
+
+            if (!IsGrimReaper(sim.SimDescription))
+                return ListenerAction.Keep;
+
             // DEBUG NOTIF
             StyledNotification.Show(new StyledNotification.Format("A " + sim.SimDescription.FullName + " has been instantiated.",
                 ObjectGuid.InvalidObjectGuid, sim.ObjectId, StyledNotification.NotificationStyle.kSimTalking));
