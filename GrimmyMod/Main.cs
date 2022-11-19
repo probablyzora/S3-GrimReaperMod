@@ -27,7 +27,7 @@ namespace probablyzora.GrimmyMod
             World.sOnWorldLoadFinishedEventHandler += OnWorldLoad;
             World.sOnWorldQuitEventHandler += OnWorldQuit;
             InteractionInjector.Initialize();
-            InteractionInjector.RegisterSimInteraction(TestInteraction.Singleton);
+            InteractionInjector.RegisterInteraction<Sim>(TestInteraction.Singleton);
         }
 
         static void OnWorldLoad(object sender, System.EventArgs e)
