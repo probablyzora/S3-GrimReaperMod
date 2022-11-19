@@ -69,7 +69,7 @@ namespace probablyzora.GrimmyMod
             string GrimLastName = StringTable.GetLocalizedString("Gameplay/SimNames/Custom:GrimReaperLastName");
             if (sim == null)
                 return false;
-            if (sim.FirstName == GrimFirstName && sim.LastName == GrimLastName)
+            if (sim.FirstName == GrimFirstName || sim.LastName == GrimLastName)
                 return true;
             return false;
         }
@@ -91,20 +91,13 @@ namespace probablyzora.GrimmyMod
                 }
             }
 
-            // Check if the Sim we detected is in GrimReaper service pool.
-            // If they aren't, they could still have the ReaperName.
-            // If they have neither, then aren't the Sim we are looking for.
-            if (sim != null)
-            {
-                if (!IsGrimReaper(sim.SimDescription))
-                {
-                    if (!HasGrimReaperName(sim))
-                        return ListenerAction.Keep;
-                    return ListenerAction.Keep;
-                }
-            }
             if (sim == null)
                 return ListenerAction.Keep;
+            if (!HasGrimReaperName(sim))
+            {
+                if (!IsGrimReaper(sim.SimDescription))
+                    return ListenerAction.Kepp;
+            }
 
             // DEBUG NOTIF
             StyledNotification.Show(new StyledNotification.Format(string.Format("A {0} has been instantiated", sim.SimDescription.FullName),
@@ -139,7 +132,7 @@ namespace probablyzora.GrimmyMod
                 int RandomSkillLevel = RandomUtil.GetInt(GrimReaper.kMinChessSkill, GrimReaper.kMaxChessSkill);
                 skill.ForceSkillLevelUp(RandomSkillLevel);
             }
-            // testing out requesting walkstyles???
+            // Sets the Walkstyle 
             sim.RequestWalkStyle(Sim.WalkStyle.DeathWalk);
 
             // Gives ReaperSmokeFX to Sim
@@ -152,19 +145,6 @@ namespace probablyzora.GrimmyMod
             }
 
             // (Set the affected needs to 100 bcs otherwise it doesn't work??? and) Remove Physiological Needs
-            // Also testing this if it even works if not used on occults or if it is even usable in a mod
-            (Sims3.Gameplay.UI.Responder.Instance.HudModel as HudModel).OnSimFavoritesChanged(sim.ObjectId);
-            MotivesPanel motivespanel = null;
-            motivespanel.mEnergyMummyWraps.Visible = true;
-            motivespanel.mBladderMummyWraps.Visible = true;
-            motivespanel.mHungerPlantSimWraps.Visible = true;
-            motivespanel.mHygieneFrankenSimWraps.Visible = true;
-            motivespanel.mEnergyMotiveText.TextColor = new Color(4291545014U);
-            motivespanel.mBladderMotiveText.TextColor = new Color(4291545014U);
-            motivespanel.mHungerMotiveText.TextColor = new Color(4291545014U);
-            motivespanel.mHygieneMotiveText.TextColor = new Color(4291545014U);
-
-            //
             sim.Motives.SetValue(CommodityKind.Energy, 100f);
             sim.Motives.SetValue(CommodityKind.Bladder, 100f);
             sim.Motives.SetValue(CommodityKind.Hunger, 100f);
@@ -173,10 +153,10 @@ namespace probablyzora.GrimmyMod
             sim.Motives.RemoveMotive(CommodityKind.Bladder);
             sim.Motives.RemoveMotive(CommodityKind.Hunger);
             sim.Motives.RemoveMotive(CommodityKind.Hygiene);
-
+            
             return ListenerAction.Keep;
+
         }
-        
 
     }
 }
