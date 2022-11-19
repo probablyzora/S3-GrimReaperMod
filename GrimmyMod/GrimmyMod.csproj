@@ -45,8 +45,10 @@
     <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="InteractionInjector.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestInteraction.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib">
