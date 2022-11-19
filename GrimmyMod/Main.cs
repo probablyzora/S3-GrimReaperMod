@@ -96,7 +96,7 @@ namespace probablyzora.GrimmyMod
             if (!HasGrimReaperName(sim))
             {
                 if (!IsGrimReaper(sim.SimDescription))
-                    return ListenerAction.Kepp;
+                    return ListenerAction.Keep;
             }
 
             // DEBUG NOTIF
