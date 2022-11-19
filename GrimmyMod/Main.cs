@@ -4,7 +4,6 @@ using Sims3.Gameplay.Core;
 using Sims3.Gameplay.EventSystem;
 using Sims3.Gameplay.Services;
 using Sims3.Gameplay.Skills;
-using Sims3.Gameplay.Utilities;
 using Sims3.SimIFace;
 using Sims3.UI.CAS;
 using Sims3.UI;
@@ -12,6 +11,7 @@ using Sims3.Gameplay.CAS;
 using Sims3.SimIFace.CAS;
 using Sims3.Gameplay.Autonomy;
 using Sims3.Gameplay.UI;
+using Sims3.UI.Hud;
 
 //Template Created by Battery
 
@@ -57,6 +57,23 @@ namespace probablyzora.GrimmyMod
             return false;
         }
 
+        /// <summary>
+        /// Checks if Sim has GrimReaperFullName. Used incase the Sim isn't spawned naturally or 
+        /// isn't in GrimReaper service pool ( eg. NRaas DebugEnabler ).
+        /// </summary>
+        /// <param name="sim">Sim to check.</param>
+        /// <returns>True if sim has both FirstName and LastName, False otherwise. </returns>
+        static bool HasGrimReaperName(Sim sim)
+        {
+            string GrimFirstName = StringTable.GetLocalizedString("Gameplay/SimNames/Custom:GrimReaperFirstName");
+            string GrimLastName = StringTable.GetLocalizedString("Gameplay/SimNames/Custom:GrimReaperLastName");
+            if (sim == null)
+                return false;
+            if (sim.FirstName == GrimFirstName && sim.LastName == GrimLastName)
+                return true;
+            return false;
+        }
+
         static ListenerAction OnSimInstantiated(Event e)
         {
             Sim sim = null;
@@ -74,14 +91,23 @@ namespace probablyzora.GrimmyMod
                 }
             }
 
+            // Check if the Sim we detected is in GrimReaper service pool.
+            // If they aren't, they could still have the ReaperName.
+            // If they have neither, then aren't the Sim we are looking for.
+            if (sim != null)
+            {
+                if (!IsGrimReaper(sim.SimDescription))
+                {
+                    if (!HasGrimReaperName(sim))
+                        return ListenerAction.Keep;
+                    return ListenerAction.Keep;
+                }
+            }
             if (sim == null)
                 return ListenerAction.Keep;
 
-            if (!IsGrimReaper(sim.SimDescription))
-                return ListenerAction.Keep;
-
             // DEBUG NOTIF
-            StyledNotification.Show(new StyledNotification.Format("A " + sim.SimDescription.FullName + " has been instantiated.",
+            StyledNotification.Show(new StyledNotification.Format(string.Format("A {0} has been instantiated", sim.SimDescription.FullName),
                 ObjectGuid.InvalidObjectGuid, sim.ObjectId, StyledNotification.NotificationStyle.kSimTalking));
 
             // Sets the favorites to random favorites from the GRSituation incase this wasn't done before.
@@ -116,23 +142,37 @@ namespace probablyzora.GrimmyMod
             // testing out requesting walkstyles???
             sim.RequestWalkStyle(Sim.WalkStyle.DeathWalk);
 
-            // Gives Reaper smoke effect if not in reaper situation ( that already gives smoke ) and disable it if it does???
+            // Gives ReaperSmokeFX to Sim
             VisualEffect ReaperSmokeFX = null;
-            if (!ServiceSituation.IsSimOnJob(sim))
+            if (IsGrimReaper(sim.SimDescription) || HasGrimReaperName(sim))
             {
                 ReaperSmokeFX = VisualEffect.Create("reaperSmokeConstant");
                 ReaperSmokeFX.ParentTo(sim, Sim.FXJoints.Pelvis);
                 ReaperSmokeFX.Start();
             }
 
-            // Remove Physiological Needs
-            if (!ServiceSituation.IsSimOnJob(sim))
-            {
-                sim.Motives.RemoveMotive(CommodityKind.Energy);
-                sim.Motives.RemoveMotive(CommodityKind.Bladder);
-                sim.Motives.RemoveMotive(CommodityKind.Hunger);
-                sim.Motives.RemoveMotive(CommodityKind.Hygiene);
-            }
+            // (Set the affected needs to 100 bcs otherwise it doesn't work??? and) Remove Physiological Needs
+            // Also testing this if it even works if not used on occults or if it is even usable in a mod
+            (Sims3.Gameplay.UI.Responder.Instance.HudModel as HudModel).OnSimFavoritesChanged(sim.ObjectId);
+            MotivesPanel motivespanel = null;
+            motivespanel.mEnergyMummyWraps.Visible = true;
+            motivespanel.mBladderMummyWraps.Visible = true;
+            motivespanel.mHungerPlantSimWraps.Visible = true;
+            motivespanel.mHygieneFrankenSimWraps.Visible = true;
+            motivespanel.mEnergyMotiveText.TextColor = new Color(4291545014U);
+            motivespanel.mBladderMotiveText.TextColor = new Color(4291545014U);
+            motivespanel.mHungerMotiveText.TextColor = new Color(4291545014U);
+            motivespanel.mHygieneMotiveText.TextColor = new Color(4291545014U);
+
+            //
+            sim.Motives.SetValue(CommodityKind.Energy, 100f);
+            sim.Motives.SetValue(CommodityKind.Bladder, 100f);
+            sim.Motives.SetValue(CommodityKind.Hunger, 100f);
+            sim.Motives.SetValue(CommodityKind.Hygiene, 100f);
+            sim.Motives.RemoveMotive(CommodityKind.Energy);
+            sim.Motives.RemoveMotive(CommodityKind.Bladder);
+            sim.Motives.RemoveMotive(CommodityKind.Hunger);
+            sim.Motives.RemoveMotive(CommodityKind.Hygiene);
 
             return ListenerAction.Keep;
         }
