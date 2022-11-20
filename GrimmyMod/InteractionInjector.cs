@@ -33,6 +33,9 @@ namespace probablyzora.GrimmyMod
 
             interactionList.Add(interaction);
 
+            if (GameUtils.GetCurrentWorld() == WorldName.Undefined)
+                return;
+
             // Add the new interaction to all existing objects of type, if they don't have it already.
             var objectQuery = Queries.GetObjects(typeof(T));
             foreach (GameObject gameObject in objectQuery)
@@ -65,6 +68,9 @@ namespace probablyzora.GrimmyMod
                 return;
 
             interactionList.Remove(interaction);
+
+            if (GameUtils.GetCurrentWorld() == WorldName.Undefined)
+                return;
 
             // Remove the interaction from all existing objects of type.
             var objectQuery = Queries.GetObjects(typeof(T));
