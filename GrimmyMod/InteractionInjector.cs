@@ -10,29 +10,78 @@ using System.Text;
 
 namespace probablyzora.GrimmyMod
 {
+    /// <summary>
+    /// Facilitates the injection of custom interactions into any object.
+    /// </summary>
     public static class InteractionInjector
     {
         static EventListener s_simInstantiatedEventListener;
         static Dictionary<Type, List<InteractionDefinition>> s_interactionsToInjectPerGameObject = new Dictionary<Type, List<InteractionDefinition>>();
 
+        /// <summary>
+        /// Add an interaction to a GameObject class type.
+        /// </summary>
+        /// <typeparam name="T">GameObject type to add interaction to.</typeparam>
+        /// <param name="interaction">Interaction definition to add to object.</param>
         public static void RegisterInteraction<T>(InteractionDefinition interaction) where T : GameObject
         {
-            var interactionList = MakeInteractionToInjectListForType<T>();
+            // Get the interaction list for this GameObject type from the Dictionary, or make it if it doesn't exist.
+            var interactionList = MakeInteractionInjectListForType(typeof(T));
+
             if (interactionList.Contains(interaction))
                 return;
-            interactionList.Add(interaction);
-        }
 
-        public static void UnregisterInteraction<T>(InteractionDefinition interaction) where T : GameObject
-        {
-            var interactionList = MakeInteractionToInjectListForType<T>();
-            if (!interactionList.Contains(interaction))
-                return;
-            interactionList.Remove(interaction);
+            interactionList.Add(interaction);
+
+            // Add the new interaction to all existing objects of type, if they don't have it already.
+            var objectQuery = Queries.GetObjects(typeof(T));
+            foreach (GameObject gameObject in objectQuery)
+            {
+                foreach (var pair in gameObject.Interactions)
+                {
+                    if (pair.InteractionDefinition.GetType() == interaction.GetType())
+                    {
+                        continue;
+                    }
+                }
+                gameObject.AddInteraction(interaction);
+            }
         }
 
         /// <summary>
-        /// Call this from entrypoint.
+        /// Remove a previously added interaction to a GameObject class type.
+        /// </summary>
+        /// <typeparam name="T">GameObject type to remove interaction from.</typeparam>
+        /// <param name="interaction">Interaction definition to remove.</param>
+        public static void UnregisterInteraction<T>(InteractionDefinition interaction) where T : GameObject
+        {
+            // Get the interaction list for this GameObject type from the Dictionary. Returns null if there isn't one.
+            var interactionList = GetInteractionInjectListForType(typeof(T));
+
+            if (interactionList == null)
+                return;
+
+            if (!interactionList.Contains(interaction))
+                return;
+
+            interactionList.Remove(interaction);
+
+            // Remove the interaction from all existing objects of type.
+            var objectQuery = Queries.GetObjects(typeof(T));
+            foreach(GameObject gameObject in objectQuery)
+            {
+                // Make a copy so that we can work on the original without raising exceptions.
+                var interactionCache = new List<InteractionObjectPair>(gameObject.Interactions);
+                foreach(var interactionPair in interactionCache)
+                {
+                    if (interactionPair.InteractionDefinition.GetType() == interaction.GetType())
+                        gameObject.Interactions.Remove(interactionPair);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Call this from entrypoint. Initialize all events.
         /// </summary>
         public static void Initialize()
         {
@@ -43,7 +92,10 @@ namespace probablyzora.GrimmyMod
 
         static void OnWorldLoad(object sender, System.EventArgs e)
         {
+            // Listen to Sim instantiation to inject interactions for Sim class.
             s_simInstantiatedEventListener = EventTracker.AddListener(EventTypeId.kSimInstantiated, OnSimInstantiated);
+
+            // Add interactions to all objects already placed in the world.
             foreach (var typeInteraction in s_interactionsToInjectPerGameObject)
             {
                 var query = Queries.GetObjects(typeInteraction.Key);
@@ -65,6 +117,7 @@ namespace probablyzora.GrimmyMod
 
         static void OnWorldQuit(object sender, System.EventArgs e)
         {
+            // Clean up.
             if (s_simInstantiatedEventListener != null)
             {
                 EventTracker.RemoveListener(s_simInstantiatedEventListener);
@@ -72,11 +125,11 @@ namespace probablyzora.GrimmyMod
             }
         }
 
-        static List<InteractionDefinition> GetInteractionInjectListForType<T>() where T : GameObject
-        {
-            return GetInteractionInjectListForType(typeof(T));
-        }
-
+        /// <summary>
+        /// Get the hooked interactions list for a GameObject type. Returns null if there isn't one.
+        /// </summary>
+        /// <param name="type">GameObject type.</param>
+        /// <returns>Interaction list, or null.</returns>
         static List<InteractionDefinition> GetInteractionInjectListForType(Type type)
         {
             if (s_interactionsToInjectPerGameObject.TryGetValue(type, out var listResult))
@@ -84,12 +137,17 @@ namespace probablyzora.GrimmyMod
             return null;
         }
 
-        static List<InteractionDefinition> MakeInteractionToInjectListForType<T>() where T : GameObject
+        /// <summary>
+        /// Get the hooked interactions list for a GameObject type, or make a new one if there isn't one.
+        /// </summary>
+        /// <param name="type">GameObject type.</param>
+        /// <returns>Interaction list.</returns>
+        static List<InteractionDefinition> MakeInteractionInjectListForType(Type type)
         {
-            if (s_interactionsToInjectPerGameObject.TryGetValue(typeof(T), out var listResult))
+            if (s_interactionsToInjectPerGameObject.TryGetValue(type, out var listResult))
                 return listResult;
             listResult = new List<InteractionDefinition>();
-            s_interactionsToInjectPerGameObject[typeof(T)] = listResult;
+            s_interactionsToInjectPerGameObject[type] = listResult;
             return listResult;
         }
 
@@ -101,6 +159,11 @@ namespace probablyzora.GrimmyMod
             return ListenerAction.Keep;
         }
 
+        /// <summary>
+        /// Appends interactions into a GameObject instance, provided they're not already in the interaction list.
+        /// </summary>
+        /// <param name="gameObject">GameObject to inject interactions into.</param>
+        /// <param name="interactions">Interaction list to inject.</param>
         static void AddInteractions(GameObject gameObject, List<InteractionDefinition> interactions)
         {
             if (interactions == null)
