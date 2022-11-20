@@ -78,23 +78,7 @@ namespace probablyzora.GrimmyMod
 
         static ListenerAction OnSimInstantiated(Event e)
         {
-            Sim sim = null;
-            if (e.TargetObject != null)
-            {
-                if (e.TargetObject is Sim)
-                    sim = (Sim)e.TargetObject;
-            }
-            if (sim == null)
-            {
-                if (e.Actor != null)
-                {
-                    if (e.Actor is Sim)
-                        sim = (Sim)e.Actor;
-                }
-            }
-
-            if (sim == null)
-                return ListenerAction.Keep;
+            var sim = e.TargetObject as Sim;
             if (!HasGrimReaperName(sim))
             {
                 if (!IsGrimReaper(sim.SimDescription))
@@ -138,10 +122,9 @@ namespace probablyzora.GrimmyMod
             sim.RequestWalkStyle(Sim.WalkStyle.DeathWalk);
 
             // Gives ReaperSmokeFX to Sim
-            VisualEffect ReaperSmokeFX = null;
             if (IsGrimReaper(sim.SimDescription) || HasGrimReaperName(sim))
             {
-                ReaperSmokeFX = VisualEffect.Create("reaperSmokeConstant");
+                var ReaperSmokeFX = VisualEffect.Create("reaperSmokeConstant");
                 ReaperSmokeFX.ParentTo(sim, Sim.FXJoints.Pelvis);
                 ReaperSmokeFX.Start();
             }

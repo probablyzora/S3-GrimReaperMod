@@ -16,7 +16,7 @@ namespace probablyzora.GrimmyMod
     public static class InteractionInjector
     {
         static EventListener s_simInstantiatedEventListener;
-        static Dictionary<Type, List<InteractionDefinition>> s_interactionsToInjectPerGameObject = new Dictionary<Type, List<InteractionDefinition>>();
+        static readonly Dictionary<Type, List<InteractionDefinition>> s_interactionsToInjectPerGameObject = new Dictionary<Type, List<InteractionDefinition>>();
 
         /// <summary>
         /// Add an interaction to a GameObject class type.
