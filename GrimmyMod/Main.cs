@@ -12,6 +12,7 @@ using Sims3.SimIFace.CAS;
 using Sims3.Gameplay.Autonomy;
 using Sims3.Gameplay.UI;
 using Sims3.UI.Hud;
+using probablyzora.GrimmyMod.Interactions;
 
 //Template Created by Battery
 
@@ -28,7 +29,7 @@ namespace probablyzora.GrimmyMod
             World.sOnWorldQuitEventHandler += OnWorldQuit;
             VisualEffect.sOnEffectFinishedEventHandler += OnEffectFinished;
             InteractionInjector.Initialize();
-            InteractionInjector.RegisterInteraction<Sim>(TestInteraction.Singleton);
+            InteractionInjector.RegisterInteraction<Terrain>(CreateGrimReaperInteraction.Singleton);
         }
 
         static void OnWorldLoad(object sender, System.EventArgs e)
@@ -97,7 +98,6 @@ namespace probablyzora.GrimmyMod
                 if (!IsGrimReaper(sim.SimDescription))
                     return ListenerAction.Keep;
             }
-
             // DEBUG NOTIF
             StyledNotification.Show(new StyledNotification.Format(string.Format("A {0} has been instantiated", sim.SimDescription.FullName),
                 ObjectGuid.InvalidObjectGuid, sim.ObjectId, StyledNotification.NotificationStyle.kSimTalking));
@@ -135,14 +135,13 @@ namespace probablyzora.GrimmyMod
             sim.RequestWalkStyle(Sim.WalkStyle.DeathWalk);
 
             // Gives ReaperSmokeFX to Sim
-            if (IsGrimReaper(sim.SimDescription) || HasGrimReaperName(sim))
-            {
-                var ReaperSmokeFX = VisualEffect.Create("reaperSmokeConstant");
-                ReaperSmokeFX.ParentTo(sim, Sim.FXJoints.Pelvis);
-                ReaperSmokeFX.SetAutoDestroy(false);
-                ReaperSmokeFX.Start();
-            }
-
+            VisualEffect.FireOneShotEffect("reaperSmokeConstant", sim, Sim.FXJoints.Pelvis, VisualEffect.TransitionType.HardTransition);
+            /*
+            var ReaperSmokeFX = VisualEffect.Create("reaperSmokeConstant");
+            ReaperSmokeFX.ParentTo(sim, Sim.FXJoints.Pelvis);
+            ReaperSmokeFX.SetAutoDestroy(false);
+            ReaperSmokeFX.Start();
+            */
             // (Set the affected needs to 100 bcs otherwise it doesn't work??? and) Remove Physiological Needs
             sim.Motives.SetValue(CommodityKind.Energy, 100f);
             sim.Motives.SetValue(CommodityKind.Bladder, 100f);
