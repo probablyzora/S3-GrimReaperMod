@@ -26,6 +26,7 @@ namespace probablyzora.GrimmyMod
         {
             World.sOnWorldLoadFinishedEventHandler += OnWorldLoad;
             World.sOnWorldQuitEventHandler += OnWorldQuit;
+            VisualEffect.sOnEffectFinishedEventHandler += OnEffectFinished;
             InteractionInjector.Initialize();
             InteractionInjector.RegisterInteraction<Sim>(TestInteraction.Singleton);
         }
@@ -74,6 +75,18 @@ namespace probablyzora.GrimmyMod
             if (sim.FirstName == GrimFirstName || sim.LastName == GrimLastName)
                 return true;
             return false;
+        }
+
+        //Restart the Grim Reaper smoke effect, so that it loops forever.
+        static void OnEffectFinished(object sender, EventArgs e)
+        {
+            var effectFinishedEventArgs = e as VisualEffect.EffectFinishedEventArgs;
+            var fx = effectFinishedEventArgs.ObjectId.ObjectFromId<VisualEffect>();
+            if (fx == null)
+                return;
+            if (fx.EffectName != "reaperSmokeConstant")
+                return;
+            fx.Start();
         }
 
         static ListenerAction OnSimInstantiated(Event e)
@@ -126,6 +139,7 @@ namespace probablyzora.GrimmyMod
             {
                 var ReaperSmokeFX = VisualEffect.Create("reaperSmokeConstant");
                 ReaperSmokeFX.ParentTo(sim, Sim.FXJoints.Pelvis);
+                ReaperSmokeFX.SetAutoDestroy(false);
                 ReaperSmokeFX.Start();
             }
 
