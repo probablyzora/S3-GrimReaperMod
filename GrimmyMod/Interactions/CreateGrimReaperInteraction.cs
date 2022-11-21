@@ -26,6 +26,7 @@ namespace probablyzora.GrimmyMod.Interactions
 			simCreationSpec.GivenName = StringTable.GetLocalizedString("Gameplay/SimNames/Custom:GrimReaperFirstName");
 			simCreationSpec.FamilyName = StringTable.GetLocalizedString("Gameplay/SimNames/Custom:GrimReaperLastName");
 			SimDescription simDescription = simCreationSpec.Instantiate();
+			Main.SetReaperTraits(simDescription);
 			PlumbBob.SelectedActor.Household.Add(simDescription);
 			Sim sim = simDescription.Instantiate(this.Hit.mPoint);
 			ResourceKey key = ResourceKey.CreateOutfitKey("YmDeath", 0U);

@@ -13,6 +13,8 @@ using Sims3.Gameplay.Autonomy;
 using Sims3.Gameplay.UI;
 using Sims3.UI.Hud;
 using probablyzora.GrimmyMod.Interactions;
+using Sims3.Gameplay.ActorSystems;
+using System.Collections.Generic;
 
 //Template Created by Battery
 
@@ -77,7 +79,73 @@ namespace probablyzora.GrimmyMod
                 return true;
             return false;
         }
-
+        public static void SetReaperTraits(SimDescription simDescription)
+        {
+            List<TraitNames> ReaperTraitsList = new List<TraitNames>
+            {
+                //////////////////////// Vanilla Traits
+                TraitNames.AbsentMinded,
+                TraitNames.BookWorm,
+                TraitNames.Brave,
+                TraitNames.Childish,
+                TraitNames.CouchPotato,
+                TraitNames.EasilyImpressed,
+                TraitNames.GoodSenseOfHumor,
+                TraitNames.Grumpy,
+                TraitNames.Insane,
+                TraitNames.Inappropriate,
+                TraitNames.Kleptomaniac,
+                TraitNames.Neat,
+                TraitNames.NoSenseOfHumor,
+                TraitNames.Neurotic,
+                TraitNames.Evil,
+                TraitNames.MeanSpirited,
+                //////////////////////// New Traits
+                // BG Traits
+                TraitNames.Workaholic,
+                TraitNames.Virtuoso,
+                // WA Traits
+                TraitNames.Adventurous,
+                // AM Traits
+                TraitNames.Eccentric,
+                TraitNames.Perceptive,
+                // LN Traits
+                TraitNames.Shy,
+                // GEN Traits
+                TraitNames.Rebellious,
+                // PET Traits
+                TraitNames.Equestrian,
+                TraitNames.AnimalLover,
+                TraitNames.DogPerson,
+                // ST Traits
+                // none lmao
+                // SN Traits
+                TraitNames.BroodingTrait,
+                TraitNames.GathererTrait,
+                TraitNames.NightOwlTrait,
+                TraitNames.SupernaturalFanTrait,
+                // SEA Traits
+                TraitNames.LovesTheCold,
+                // UL Traits
+                TraitNames.AvantGarde,
+                TraitNames.SociallyAwkward,
+                // IL Traits
+                TraitNames.LovesToSwim,
+                // ITF Traits
+                // i would put unstable here but idk how it functions :sob: and would kinda make all of this redundant
+            };
+            int TraitsSlotsTaken = 0;
+            while (TraitsSlotsTaken != 5)
+            {
+                TraitNames RandomTraitNameFromList = RandomUtil.GetRandomObjectFromList<TraitNames>(ReaperTraitsList);
+                if (GameUtils.IsInstalled((TraitManager.GetTraitFromDictionary(RandomTraitNameFromList).ProductVersion)))   
+                {
+                    simDescription.TraitManager.AddElement(RandomTraitNameFromList);
+                    TraitsSlotsTaken += 1;
+                }
+                ReaperTraitsList.Remove(RandomTraitNameFromList);
+            }
+        }
         //Restart the Grim Reaper smoke effect, so that it loops forever.
         static void OnEffectFinished(object sender, EventArgs e)
         {

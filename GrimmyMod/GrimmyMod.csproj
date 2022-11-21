@@ -51,32 +51,35 @@
     <Compile Include="Interactions\CreateGrimReaperInteraction.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Battery.Utility">
+      <HintPath>..\..\..\ReferenceAssemblies\Battery.Utility.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib">
       <HintPath>C:\Users\luna3\Documents\S3_TemplateCreator_1.3\\ReferenceAssemblies\mscorlib.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="ScriptCore_Pure">
-      <HintPath>C:\Users\luna3\Documents\S3_TemplateCreator_1.3\\ReferenceAssemblies\ScriptCore_Pure.dll</HintPath>
+      <HintPath>..\..\..\ReferenceAssemblies\ScriptCore_Pure.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="SimIFace">
-      <HintPath>C:\Users\luna3\Documents\S3_TemplateCreator_1.3\\ReferenceAssemblies\SimIFace.dll</HintPath>
+      <HintPath>..\..\..\ReferenceAssemblies\SimIFace.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Sims3GameplayObjects">
-      <HintPath>C:\Users\luna3\Documents\S3_TemplateCreator_1.3\\ReferenceAssemblies\Sims3GameplayObjects.dll</HintPath>
+      <HintPath>..\..\..\ReferenceAssemblies\Sims3GameplayObjects.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Sims3GameplaySystems">
-      <HintPath>C:\Users\luna3\Documents\S3_TemplateCreator_1.3\\ReferenceAssemblies\Sims3GameplaySystems.dll</HintPath>
+      <HintPath>..\..\..\ReferenceAssemblies\Sims3GameplaySystems.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Sims3MetaData">
-      <HintPath>C:\Users\luna3\Documents\S3_TemplateCreator_1.3\\ReferenceAssemblies\Sims3MetaData.dll</HintPath>
+      <HintPath>..\..\..\ReferenceAssemblies\Sims3MetaData.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Sims3StoreObjects">
-      <HintPath>C:\Users\luna3\Documents\S3_TemplateCreator_1.3\\ReferenceAssemblies\Sims3StoreObjects.dll</HintPath>
+      <HintPath>..\..\..\ReferenceAssemblies\Sims3StoreObjects.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System">
@@ -88,7 +91,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="UI">
-      <HintPath>C:\Users\luna3\Documents\S3_TemplateCreator_1.3\\ReferenceAssemblies\UI.dll</HintPath>
+      <HintPath>..\..\..\ReferenceAssemblies\UI.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
