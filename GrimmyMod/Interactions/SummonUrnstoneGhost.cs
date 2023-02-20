@@ -46,7 +46,10 @@ namespace probablyzora.GrimmyMod.Interactions
             {
                 if (urnstone.DeadSimsDescription != null)
                 {
-                    return true;
+                    if (sim.SimDescription.TeenOrAbove)
+                    {
+                        return true;
+                    }
                 }
                 return false;
             }

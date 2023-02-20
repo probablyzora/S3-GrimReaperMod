@@ -15,6 +15,7 @@ using Sims3.UI.Hud;
 using probablyzora.GrimmyMod.Interactions;
 using Sims3.Gameplay.ActorSystems;
 using System.Collections.Generic;
+using Sims3.Gameplay.Objects;
 
 //Template Created by Battery
 
@@ -32,6 +33,7 @@ namespace probablyzora.GrimmyMod
             VisualEffect.sOnEffectFinishedEventHandler += OnEffectFinished;
             InteractionInjector.Initialize();
             InteractionInjector.RegisterInteraction<Terrain>(CreateGrimReaper.Singleton);
+            InteractionInjector.RegisterInteraction<Urnstone>(SummonGhost.Singleton);
         }
 
         static void OnWorldLoad(object sender, System.EventArgs e)
