@@ -31,7 +31,7 @@ namespace probablyzora.GrimmyMod
             World.sOnWorldQuitEventHandler += OnWorldQuit;
             VisualEffect.sOnEffectFinishedEventHandler += OnEffectFinished;
             InteractionInjector.Initialize();
-            InteractionInjector.RegisterInteraction<Terrain>(CreateGrimReaperInteraction.Singleton);
+            InteractionInjector.RegisterInteraction<Terrain>(CreateGrimReaper.Singleton);
         }
 
         static void OnWorldLoad(object sender, System.EventArgs e)
@@ -53,7 +53,7 @@ namespace probablyzora.GrimmyMod
         /// </summary>
         /// <param name="simDescription">SimDescription to check.</param>
         /// <returns>True if simDescription is a Grim Reaper, False otherwise.</returns>
-        static bool IsGrimReaper(SimDescription simDescription)
+        static bool IsGrimReaperService(SimDescription simDescription)
         {
             var grimReaper = GrimReaper.Instance;
             if (grimReaper == null)
@@ -77,6 +77,20 @@ namespace probablyzora.GrimmyMod
                 return false;
             if (sim.FirstName == GrimFirstName || sim.LastName == GrimLastName)
                 return true;
+            return false;
+        }
+        /// <summary>
+        /// Checks if Sim either has the localized name or is in the GR Service Pool.
+        /// Temporary solution until i manage to get the traits working lol
+        /// </summary>
+        /// <param name="simDescription"></param>
+        /// <reutrns>True if either is true, false if not in pool or isn't named correctly</reutrns>
+        public static bool IsGrimReaper(Sim sim)
+        {
+            if ((HasGrimReaperName(sim)) || (IsGrimReaperService(sim.SimDescription)))
+            {
+                return true;
+            }
             return false;
         }
         public static void SetReaperTraits(SimDescription simDescription)
@@ -163,7 +177,7 @@ namespace probablyzora.GrimmyMod
             var sim = e.TargetObject as Sim;
             if (!HasGrimReaperName(sim))
             {
-                if (!IsGrimReaper(sim.SimDescription))
+                if (!IsGrimReaperService(sim.SimDescription))
                     return ListenerAction.Keep;
             }
             // DEBUG NOTIF

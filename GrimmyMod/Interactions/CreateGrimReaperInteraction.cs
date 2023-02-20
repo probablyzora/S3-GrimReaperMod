@@ -14,7 +14,7 @@ using System.Text;
 
 namespace probablyzora.GrimmyMod.Interactions
 {
-    public sealed class CreateGrimReaperInteraction : ImmediateInteractionGameObjectHit<IActor, IGameObject>
+    public sealed class CreateGrimReaper : ImmediateInteractionGameObjectHit<IActor, IGameObject>
 	{
         public static readonly InteractionDefinition Singleton = new Definition();
         public override bool Run()
@@ -52,7 +52,7 @@ namespace probablyzora.GrimmyMod.Interactions
 			return true;
 		}
         [DoesntRequireTuning]
-        public sealed class Definition : ActorlessInteractionDefinition<IActor, IGameObject, CreateGrimReaperInteraction>
+        public sealed class Definition : ActorlessInteractionDefinition<IActor, IGameObject, CreateGrimReaper>
         {
             public  override string GetInteractionName(IActor a, IGameObject target, InteractionObjectPair interaction)
             {
