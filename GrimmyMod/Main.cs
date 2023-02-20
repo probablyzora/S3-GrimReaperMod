@@ -87,7 +87,11 @@ namespace probablyzora.GrimmyMod
         /// <reutrns>True if either is true, false if not in pool or isn't named correctly</reutrns>
         public static bool IsGrimReaper(Sim sim)
         {
-            if ((HasGrimReaperName(sim)) || (IsGrimReaperService(sim.SimDescription)))
+            if (HasGrimReaperName(sim))
+            {
+                return true;
+            }
+            if (IsGrimReaperService(sim.SimDescription))
             {
                 return true;
             }
@@ -225,11 +229,9 @@ namespace probablyzora.GrimmyMod
             ReaperSmokeFX.Start();
             */
             // (Set the affected needs to 100 bcs otherwise it doesn't work??? and) Remove Physiological Needs
-            sim.Motives.SetValue(CommodityKind.Energy, 100f);
             sim.Motives.SetValue(CommodityKind.Bladder, 100f);
             sim.Motives.SetValue(CommodityKind.Hunger, 100f);
             sim.Motives.SetValue(CommodityKind.Hygiene, 100f);
-            sim.Motives.RemoveMotive(CommodityKind.Energy);
             sim.Motives.RemoveMotive(CommodityKind.Bladder);
             sim.Motives.RemoveMotive(CommodityKind.Hunger);
             sim.Motives.RemoveMotive(CommodityKind.Hygiene);

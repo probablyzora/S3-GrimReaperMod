@@ -44,17 +44,9 @@ namespace probablyzora.GrimmyMod.Interactions
             }
             public override bool Test(Sim sim, Urnstone urnstone, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
             {
-                if ((sim.IsSleeping) || (sim.Posture is SwimmingInPool))
+                if (urnstone.DeadSimsDescription != null)
                 {
-                    return false;
-                }
-
-                if ((Main.IsGrimReaper(sim)) && sim.SimDescription.TeenOrAbove)
-                {
-                    if (urnstone.DeadSimsDescription != null)
-                    {
-                        return true;
-                    }
+                    return true;
                 }
                 return false;
             }
