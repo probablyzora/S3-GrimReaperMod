@@ -25,6 +25,9 @@ namespace probablyzora.GrimmyMod.Interactions
 			simCreationSpec.Gender = CASAgeGenderFlags.Male;
 			simCreationSpec.GivenName = StringTable.GetLocalizedString("Gameplay/SimNames/Custom:GrimReaperFirstName");
 			simCreationSpec.FamilyName = StringTable.GetLocalizedString("Gameplay/SimNames/Custom:GrimReaperLastName");
+			simCreationSpec.Weight = RandomUtil.GetFloat(0, 0.50f);
+			simCreationSpec.Fitness = RandomUtil.GetFloat(0, 0.30f);
+			///
 			SimDescription simDescription = simCreationSpec.Instantiate();
 			simDescription.TraitManager.RemoveAllElements();
 			Main.SetReaperTraits(simDescription);

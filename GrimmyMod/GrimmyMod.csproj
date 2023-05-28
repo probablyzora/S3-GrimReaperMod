@@ -46,6 +46,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="InteractionInjector.cs" />
+    <Compile Include="Interactions\AnimsGrave.cs" />
+    <Compile Include="Interactions\SwitchWalkstyle.cs" />
     <Compile Include="Interactions\SummonUrnstoneGhost.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

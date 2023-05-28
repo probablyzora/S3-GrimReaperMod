@@ -17,7 +17,8 @@ using Sims3.Gameplay.ActorSystems;
 using System.Collections.Generic;
 using Sims3.Gameplay.Objects;
 
-//Template Created by Battery
+//  Template Created by Battery , InteractionInjector and most of the technical Main.cs done by LazyDuchess
+//  Ideas by ProbablyZora
 
 namespace probablyzora.GrimmyMod
 {
@@ -32,8 +33,10 @@ namespace probablyzora.GrimmyMod
             World.sOnWorldQuitEventHandler += OnWorldQuit;
             VisualEffect.sOnEffectFinishedEventHandler += OnEffectFinished;
             InteractionInjector.Initialize();
-            InteractionInjector.RegisterInteraction<Terrain>(CreateGrimReaper.Singleton);
+            InteractionInjector.RegisterInteraction<Sim>(CreateGrimReaper.Singleton);
             InteractionInjector.RegisterInteraction<Urnstone>(SummonGhost.Singleton);
+            InteractionInjector.RegisterInteraction<Urnstone>(AnimsGrave.Singleton);
+            InteractionInjector.RegisterInteraction<Terrain>(SwitchWalkstyle.Singleton);   
         }
 
         static void OnWorldLoad(object sender, System.EventArgs e)
@@ -231,6 +234,7 @@ namespace probablyzora.GrimmyMod
             ReaperSmokeFX.Start();
             */
             // (Set the affected needs to 100 bcs otherwise it doesn't work??? and) Remove Physiological Needs
+            // will need to change
             sim.Motives.SetValue(CommodityKind.Bladder, 100f);
             sim.Motives.SetValue(CommodityKind.Hunger, 100f);
             sim.Motives.SetValue(CommodityKind.Hygiene, 100f);

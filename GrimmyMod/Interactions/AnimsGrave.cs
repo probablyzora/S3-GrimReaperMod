@@ -14,11 +14,11 @@ using System.Collections.Generic;
 using System.Text;
 using Sims3.Gameplay.Objects;
 using Sims3.Gameplay.Pools;
-using Sims3.Gameplay.ThoughtBalloons;
+using Sims3.Gameplay.ActorSystems;
 
 namespace probablyzora.GrimmyMod.Interactions
 {
-    public sealed class SummonGhost : InteractionGameObjectHit<Sim, Urnstone>
+    public sealed class AnimsGrave : InteractionGameObjectHit<Sim, Urnstone>
     {
 
     
@@ -27,40 +27,28 @@ namespace probablyzora.GrimmyMod.Interactions
         {
 			Sim sim = this.Actor as Sim;
             Urnstone urnstone = this.Target as Urnstone;
-            /// ROUTE TO URNSTONE
-            Route route = this.Actor.CreateRoute();
-            route.PlanToPointRadialRange(this.Target.Position, 1.5f, 3f, RouteDistancePreference.PreferNearestToRouteDestination, RouteOrientationPreference.TowardsObject, this.Target.LotCurrent.LotId, new int[]
-            {
-                    this.Target.RoomId
-            });
-            if (!this.Actor.DoRoute(route))
-            {
-                return false;
-            }
-            ///
             sim.PlaySoloAnimation("a_death_showOff_x");
-            sim.PlaySoloAnimation("a_death_create_x");
+            sim.PlaySoloAnimation("a_death_putScythe_x");
             sim.PlaySoloAnimation("a_death_point_x");
-            urnstone.GhostSpawn(false);
-            StyledNotification.Show(new StyledNotification.Format(string.Format("{0} summoned a ghost lmao", sim.SimDescription.FullName),
-            ObjectGuid.InvalidObjectGuid, sim.ObjectId, StyledNotification.NotificationStyle.kSimTalking));
+            sim.PlaySoloAnimation("a_death_create_x");
+            sim.PlaySoloAnimation("a_appear_x");
+            sim.PlaySoloAnimation("a_die_electrocution_x");
+            sim.PlaySoloAnimation("a_die_drowning_x");
+            sim.PlaySoloAnimation("a_die_burning_x");
+            sim.BuffManager.AddElement(BuffNames.OnFire, Origin.FromWooHooWithOccult);
             return true;
 
         }
         [DoesntRequireTuning]
-        public sealed class Definition : InteractionDefinition<Sim, Urnstone, SummonGhost>
+        public sealed class Definition : InteractionDefinition<Sim, Urnstone, AnimsGrave>
         {
             public  override string GetInteractionName(Sim sim, Urnstone urnstone, InteractionObjectPair interaction)
             {
-                return "Summon Ghost";
+                return "AnimsGrave";
             }
             public override bool Test(Sim sim, Urnstone urnstone, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
             {
-                if (Main.IsGrimReaper(sim) == true)
-                {
-                    return true;
-                }
-                return false;
+                return true;
             }
         }
     }
