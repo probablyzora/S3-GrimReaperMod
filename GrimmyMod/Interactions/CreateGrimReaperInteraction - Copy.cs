@@ -33,8 +33,7 @@ namespace probablyzora.GrimmyMod.Interactions
 			Main.SetReaperTraits(simDescription);
 			PlumbBob.SelectedActor.Household.Add(simDescription);
 			Sim sim = simDescription.Instantiate(this.Hit.mPoint);
-			simDescription.RemoveOutfits(OutfitCategories.All,false,true);
-            ResourceKey key = ResourceKey.CreateOutfitKey("YmDeath", 0U);
+			ResourceKey key = ResourceKey.CreateOutfitKey("YmDeath", 0U);
 			SimOutfit outfit = new SimOutfit(key);
 			SimBuilder simBuilder = new SimBuilder();
 			simBuilder.UseCompression = true;

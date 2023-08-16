@@ -16,6 +16,7 @@ using probablyzora.GrimmyMod.Interactions;
 using Sims3.Gameplay.ActorSystems;
 using System.Collections.Generic;
 using Sims3.Gameplay.Objects;
+using Sims3.Gameplay.Abstracts;
 
 //  Template Created by Battery , InteractionInjector and most of the technical Main.cs done by LazyDuchess
 //  Ideas by ProbablyZora
@@ -27,16 +28,17 @@ namespace probablyzora.GrimmyMod
         [Tunable] static bool init;
         static EventListener simInstantiatedEventListener;
 
+
         static Main()
         {
             World.sOnWorldLoadFinishedEventHandler += OnWorldLoad;
             World.sOnWorldQuitEventHandler += OnWorldQuit;
             VisualEffect.sOnEffectFinishedEventHandler += OnEffectFinished;
             InteractionInjector.Initialize();
-            InteractionInjector.RegisterInteraction<Sim>(CreateGrimReaper.Singleton);
+            InteractionInjector.RegisterInteraction<Terrain>(CreateGrimReaper.Singleton);
             InteractionInjector.RegisterInteraction<Urnstone>(SummonGhost.Singleton);
-            InteractionInjector.RegisterInteraction<Urnstone>(AnimsGrave.Singleton);
-            InteractionInjector.RegisterInteraction<Terrain>(SwitchWalkstyle.Singleton);   
+            InteractionInjector.RegisterInteraction<Urnstone>(ReviveGhostAsZombie.Singleton);
+
         }
 
         static void OnWorldLoad(object sender, System.EventArgs e)
