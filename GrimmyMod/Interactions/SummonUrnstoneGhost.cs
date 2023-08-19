@@ -27,6 +27,9 @@ namespace probablyzora.GrimmyMod.Interactions
         {
 			Sim sim = this.Actor as Sim;
             Urnstone urnstone = this.Target as Urnstone;
+            Sim GhostSim = urnstone.MyGhost;
+            SimOutfit simOutfit = null;
+            ObjectSound objectsound = new ObjectSound(this.Actor.ObjectId, "death_reaper_lp");
             /// ROUTE TO URNSTONE
             Route route = this.Actor.CreateRoute();
             route.PlanToPointRadialRange(this.Target.Position, 1.5f, 3f, RouteDistancePreference.PreferNearestToRouteDestination, RouteOrientationPreference.TowardsObject, this.Target.LotCurrent.LotId, new int[]
@@ -38,12 +41,30 @@ namespace probablyzora.GrimmyMod.Interactions
                 return false;
             }
             ///
-            sim.PlaySoloAnimation("a_death_showOff_x");
-            sim.PlaySoloAnimation("a_death_create_x");
-            sim.PlaySoloAnimation("a_death_point_x");
+            base.StandardEntry();
+            base.BeginCommodityUpdates();
+            base.AcquireStateMachine("zora_ReaperInteractions");
+            base.SetActor("x", base.Actor);
+            base.EnterSim("Enter");
+            base.AnimateSim("GetScythe");
+            base.AnimateSim("CreateTombstone");
+            simOutfit = this.Target.DeadSimsDescription.GetOutfit(OutfitCategories.Everyday, 0);
+            ThumbnailManager.GenerateHouseholdSimThumbnail(simOutfit.Key, simOutfit.Key.InstanceId, 0U, ThumbnailSizeMask.Large, ThumbnailTechnique.Default, false, false, this.Target.DeadSimsDescription.AgeGenderSpecies);
+            ThumbnailKey thumbnailKey = this.Target.DeadSimsDescription.GetDeceasedThumbnailKey(ThumbnailSize.Large,0);
+            ThoughtBalloonManager.BalloonData balloonData = new ThoughtBalloonManager.DoubleBalloonData("balloon_moodlet_mourning", thumbnailKey);
+            balloonData.mPriority = ThoughtBalloonPriority.High;
+            this.Actor.ThoughtBalloonManager.ShowBalloon(balloonData);
+            base.AnimateSim("ReaperPointAtGrave");
+            base.AnimateSim("PutAwayScythe");
+            base.AnimateSim("Exit");
+            base.StandardExit();
+            if (objectsound != null)
+            {
+                objectsound.Dispose();
+                objectsound = null;
+
+            }
             urnstone.GhostSpawn(false);
-            //StyledNotification.Show(new StyledNotification.Format(string.Format("{0} summoned a ghost lmao", sim.SimDescription.FullName),
-            //ObjectGuid.InvalidObjectGuid, sim.ObjectId, StyledNotification.NotificationStyle.kSimTalking));
             return true;
 
         }

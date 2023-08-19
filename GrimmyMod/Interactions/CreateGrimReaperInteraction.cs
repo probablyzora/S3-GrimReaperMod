@@ -30,6 +30,7 @@ namespace probablyzora.GrimmyMod.Interactions
 			///
 			SimDescription simDescription = simCreationSpec.Instantiate();
 			simDescription.TraitManager.RemoveAllElements();
+			simDescription.VoiceVariation = VoiceVariationType.C;
 			Main.SetReaperTraits(simDescription);
 			PlumbBob.SelectedActor.Household.Add(simDescription);
 			Sim sim = simDescription.Instantiate(this.Hit.mPoint);

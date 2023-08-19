@@ -27,8 +27,6 @@ namespace probablyzora.GrimmyMod
     {
         [Tunable] static bool init;
         static EventListener simInstantiatedEventListener;
-
-
         static Main()
         {
             World.sOnWorldLoadFinishedEventHandler += OnWorldLoad;
@@ -38,12 +36,14 @@ namespace probablyzora.GrimmyMod
             InteractionInjector.RegisterInteraction<Terrain>(CreateGrimReaper.Singleton);
             InteractionInjector.RegisterInteraction<Urnstone>(SummonGhost.Singleton);
             InteractionInjector.RegisterInteraction<Urnstone>(ReviveGhostAsZombie.Singleton);
+            InteractionInjector.RegisterInteraction<Terrain>(AppearHere.Singleton);
 
         }
 
         static void OnWorldLoad(object sender, System.EventArgs e)
         {
             simInstantiatedEventListener = EventTracker.AddListener(EventTypeId.kSimInstantiated, OnSimInstantiated);
+            
         }
 
         static void OnWorldQuit(object sender, System.EventArgs e)
@@ -171,6 +171,13 @@ namespace probablyzora.GrimmyMod
                 ReaperTraitsList.Remove(RandomTraitNameFromList);
             }
         }
+        public static void OverrideServiceNPCProperties(SimDescription simDescription)
+        {
+            simDescription.MotivesDontDecay = false;
+            simDescription.Marryable = true;
+            simDescription.Contactable = true;
+            simDescription.ShowSocialsOnSim = true;
+        }
         //Restart the Grim Reaper smoke effect, so that it loops forever.
         static void OnEffectFinished(object sender, EventArgs e)
         {
@@ -182,7 +189,19 @@ namespace probablyzora.GrimmyMod
                 return;
             fx.Start();
         }
+        static ListenerAction OnSimInstantiatedService(Event e)
+        {
+            var sim = e.TargetObject as Sim;
+            if (!HasGrimReaperName(sim))
+            {
+                if (!IsGrimReaperService(sim.SimDescription))
+                {
+                    return ListenerAction.Keep;
+                }
+            }
 
+            return ListenerAction.Keep; 
+        }
         static ListenerAction OnSimInstantiated(Event e)
         {
             var sim = e.TargetObject as Sim;
@@ -194,7 +213,7 @@ namespace probablyzora.GrimmyMod
             // DEBUG NOTIF
             StyledNotification.Show(new StyledNotification.Format(string.Format("A {0} has been instantiated", sim.SimDescription.FullName),
                 ObjectGuid.InvalidObjectGuid, sim.ObjectId, StyledNotification.NotificationStyle.kSimTalking));
-
+            OverrideServiceNPCProperties(sim.SimDescription);
             // Sets the favorites to random favorites from the GRSituation incase this wasn't done before.
             if (sim.SimDescription.FavoriteFood == FavoriteFoodType.None)
             {
@@ -243,7 +262,10 @@ namespace probablyzora.GrimmyMod
             sim.Motives.RemoveMotive(CommodityKind.Bladder);
             sim.Motives.RemoveMotive(CommodityKind.Hunger);
             sim.Motives.RemoveMotive(CommodityKind.Hygiene);
-            
+            // making sure they are really in there tbh idk what im even doing anymore
+            InteractionInjector.RegisterInteraction<Terrain>(CreateGrimReaper.Singleton);
+            InteractionInjector.RegisterInteraction<Urnstone>(SummonGhost.Singleton);
+            InteractionInjector.RegisterInteraction<Urnstone>(ReviveGhostAsZombie.Singleton);
             return ListenerAction.Keep;
 
         }
