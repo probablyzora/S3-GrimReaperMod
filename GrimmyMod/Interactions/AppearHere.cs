@@ -35,11 +35,11 @@ namespace probablyzora.GrimmyMod.Interactions
             base.SetActor("x", base.Actor);
             base.EnterSim("Enter");
             base.AnimateSim("Enter");
-            sim.FadeOut(false, false, 4f);
+            sim.FadeOut(false, false, 2f);
             base.AnimateSim("ReaperDisappear");
             sim.SimRoutingComponent.DisableDynamicFootprint();
             sim.SetPosition(this.Destination);;
-            sim.FadeIn(false,1.5f);
+            sim.FadeIn(false,0.5f);
             base.AnimateSim("ReaperAppear");
             ReactionBroadcaster scaredReactionBroadcaster = new ReactionBroadcaster(this.Actor, Sims3.Gameplay.Services.GrimReaperSituation.ScaredParams, Sims3.Gameplay.Services.GrimReaperSituation.ScaredDelegate);
             if (RandomUtil.RandomChance(25f))

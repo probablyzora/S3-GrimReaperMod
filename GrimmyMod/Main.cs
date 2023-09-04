@@ -27,11 +27,13 @@ namespace probablyzora.GrimmyMod
     {
         [Tunable] static bool init;
         static EventListener simInstantiatedEventListener;
+        static EventListener eventSimSelected;
         static Main()
         {
             World.sOnWorldLoadFinishedEventHandler += OnWorldLoad;
             World.sOnWorldQuitEventHandler += OnWorldQuit;
             VisualEffect.sOnEffectFinishedEventHandler += OnEffectFinished;
+            
             InteractionInjector.Initialize();
             InteractionInjector.RegisterInteraction<Terrain>(CreateGrimReaper.Singleton);
             InteractionInjector.RegisterInteraction<Urnstone>(SummonGhost.Singleton);
@@ -43,6 +45,7 @@ namespace probablyzora.GrimmyMod
         static void OnWorldLoad(object sender, System.EventArgs e)
         {
             simInstantiatedEventListener = EventTracker.AddListener(EventTypeId.kSimInstantiated, OnSimInstantiated);
+            eventSimSelected = EventTracker.AddListener(EventTypeId.kEventSimSelected, OnEventSimSelected);
             
         }
 
@@ -189,19 +192,6 @@ namespace probablyzora.GrimmyMod
                 return;
             fx.Start();
         }
-        static ListenerAction OnSimInstantiatedService(Event e)
-        {
-            var sim = e.TargetObject as Sim;
-            if (!HasGrimReaperName(sim))
-            {
-                if (!IsGrimReaperService(sim.SimDescription))
-                {
-                    return ListenerAction.Keep;
-                }
-            }
-
-            return ListenerAction.Keep; 
-        }
         static ListenerAction OnSimInstantiated(Event e)
         {
             var sim = e.TargetObject as Sim;
@@ -263,12 +253,24 @@ namespace probablyzora.GrimmyMod
             sim.Motives.RemoveMotive(CommodityKind.Hunger);
             sim.Motives.RemoveMotive(CommodityKind.Hygiene);
             // making sure they are really in there tbh idk what im even doing anymore
-            InteractionInjector.RegisterInteraction<Terrain>(CreateGrimReaper.Singleton);
             InteractionInjector.RegisterInteraction<Urnstone>(SummonGhost.Singleton);
             InteractionInjector.RegisterInteraction<Urnstone>(ReviveGhostAsZombie.Singleton);
             return ListenerAction.Keep;
 
         }
-
+        static ListenerAction OnEventSimSelected(Event e)
+        {
+            var sim = e.TargetObject as Sim;
+            if (!HasGrimReaperName(sim))
+            {
+                if (!IsGrimReaperService(sim.SimDescription))
+                    return ListenerAction.Keep;
+            }
+            // DEBUG NOTIF
+            StyledNotification.Show(new StyledNotification.Format(string.Format("{0} has been selected.", sim.SimDescription.FullName),
+                ObjectGuid.InvalidObjectGuid, sim.ObjectId, StyledNotification.NotificationStyle.kSimTalking));
+            OverrideServiceNPCProperties(sim.SimDescription);
+            return ListenerAction.Keep;
+        }
     }
 }

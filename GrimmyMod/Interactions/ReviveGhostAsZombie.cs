@@ -130,19 +130,11 @@ namespace probablyzora.GrimmyMod.Interactions
                                                                       ObjectGuid.InvalidObjectGuid,
                                                                       sim.ObjectId,
                                                                       StyledNotification.NotificationStyle.kSimTalking));
-                base.StandardEntry();
-                base.BeginCommodityUpdates();
                 StyledNotification.Show(new StyledNotification.Format(string.Format("before state machine", sim.SimDescription.FullName),
                                                                       ObjectGuid.InvalidObjectGuid,
                                                                       sim.ObjectId,
                                                                       StyledNotification.NotificationStyle.kSimTalking));
                 /// /// /// /// /// /// /// /// /// /// /// /// /// /// HANGS UP HERE
-                base.AcquireStateMachine("ReanimationClimbOut");
-                base.SetActor("x", GhostSim);
-                base.EnterState("x", "Enter");
-                base.SetActorAndEnter("y", this.Actor, "Enter");
-                base.AddOneShotScriptEventHandler(201U, new SacsEventHandler(this.ShowZombie));
-                base.AnimateSim("Exit");
                 StyledNotification.Show(new StyledNotification.Format(string.Format("exit", sim.SimDescription.FullName),
                                                                       ObjectGuid.InvalidObjectGuid,
                                                                       sim.ObjectId,
