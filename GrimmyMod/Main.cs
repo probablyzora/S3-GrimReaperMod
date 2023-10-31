@@ -236,8 +236,6 @@ namespace probablyzora.GrimmyMod
             ReaperSmokeFX.SetAutoDestroy(false);
             ReaperSmokeFX.Start();
             */
-            // (Set the affected needs to 100 bcs otherwise it doesn't work??? and) Remove Physiological Needs
-            // will need to change
             sim.Motives.SetValue(CommodityKind.Bladder, 100f);
             sim.Motives.SetValue(CommodityKind.Hunger, 100f);
             sim.Motives.SetValue(CommodityKind.Hygiene, 100f);
