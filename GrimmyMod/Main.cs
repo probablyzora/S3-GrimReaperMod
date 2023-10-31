@@ -33,20 +33,19 @@ namespace probablyzora.GrimmyMod
             World.sOnWorldLoadFinishedEventHandler += OnWorldLoad;
             World.sOnWorldQuitEventHandler += OnWorldQuit;
             VisualEffect.sOnEffectFinishedEventHandler += OnEffectFinished;
-            
+
             InteractionInjector.Initialize();
             InteractionInjector.RegisterInteraction<Terrain>(CreateGrimReaper.Singleton);
             InteractionInjector.RegisterInteraction<Urnstone>(SummonGhost.Singleton);
             InteractionInjector.RegisterInteraction<Urnstone>(ReviveGhostAsZombie.Singleton);
             InteractionInjector.RegisterInteraction<Terrain>(AppearHere.Singleton);
-
         }
 
         static void OnWorldLoad(object sender, System.EventArgs e)
         {
             simInstantiatedEventListener = EventTracker.AddListener(EventTypeId.kSimInstantiated, OnSimInstantiated);
-            eventSimSelected = EventTracker.AddListener(EventTypeId.kEventSimSelected, OnEventSimSelected);
-            
+            //eventSimSelected = EventTracker.AddListener(EventTypeId.kEventSimSelected, OnEventSimSelected);
+
         }
 
         static void OnWorldQuit(object sender, System.EventArgs e)
@@ -166,7 +165,7 @@ namespace probablyzora.GrimmyMod
             while (TraitsSlotsTaken != 5)
             {
                 TraitNames RandomTraitNameFromList = RandomUtil.GetRandomObjectFromList<TraitNames>(ReaperTraitsList);
-                if (GameUtils.IsInstalled((TraitManager.GetTraitFromDictionary(RandomTraitNameFromList).ProductVersion)))   
+                if (GameUtils.IsInstalled((TraitManager.GetTraitFromDictionary(RandomTraitNameFromList).ProductVersion)))
                 {
                     simDescription.TraitManager.AddElement(RandomTraitNameFromList);
                     TraitsSlotsTaken += 1;
@@ -192,6 +191,13 @@ namespace probablyzora.GrimmyMod
                 return;
             fx.Start();
         }
+        public static void UpdateSimFavorites(SimDescription simDescription)
+        {
+            simDescription.FavoriteFood = GrimReaper.kFavoriteFoods[RandomUtil.GetInt(0, GrimReaper.kFavoriteFoods.Length - 1)];
+            simDescription.FavoriteMusic = GrimReaper.kFavoriteMusic[RandomUtil.GetInt(0, GrimReaper.kFavoriteMusic.Length - 1)];
+            simDescription.FavoriteColor = new CASCharacter.NameColorPair("Black", new Color(0, 0, 0)).mColor;
+            return;
+        }
         static ListenerAction OnSimInstantiated(Event e)
         {
             var sim = e.TargetObject as Sim;
@@ -204,20 +210,6 @@ namespace probablyzora.GrimmyMod
             StyledNotification.Show(new StyledNotification.Format(string.Format("A {0} has been instantiated", sim.SimDescription.FullName),
                 ObjectGuid.InvalidObjectGuid, sim.ObjectId, StyledNotification.NotificationStyle.kSimTalking));
             OverrideServiceNPCProperties(sim.SimDescription);
-            // Sets the favorites to random favorites from the GRSituation incase this wasn't done before.
-            if (sim.SimDescription.FavoriteFood == FavoriteFoodType.None)
-            {
-                sim.SimDescription.FavoriteFood = GrimReaper.kFavoriteFoods[RandomUtil.GetInt(0, GrimReaper.kFavoriteFoods.Length - 1)];
-            }
-            if (sim.SimDescription.FavoriteMusic == FavoriteMusicType.None)
-            {
-                sim.SimDescription.FavoriteMusic = GrimReaper.kFavoriteMusic[RandomUtil.GetInt(0, GrimReaper.kFavoriteMusic.Length - 1)];
-            }
-            if (sim.SimDescription.FavoriteColor == Color.Preset.None)
-            {
-                sim.SimDescription.FavoriteColor = new CASCharacter.NameColorPair("Black", new Color(0, 0, 0)).mColor;
-            }
-
             // Sets Logic Skill if skill level is below minimum.
             Skill skill = sim.SkillManager.AddElement(SkillNames.Logic);
             if (sim.SkillManager.GetSkillLevel(SkillNames.Logic) < GrimReaper.kMinLogicSkill)
@@ -252,13 +244,10 @@ namespace probablyzora.GrimmyMod
             sim.Motives.RemoveMotive(CommodityKind.Bladder);
             sim.Motives.RemoveMotive(CommodityKind.Hunger);
             sim.Motives.RemoveMotive(CommodityKind.Hygiene);
-            // making sure they are really in there tbh idk what im even doing anymore
-            InteractionInjector.RegisterInteraction<Urnstone>(SummonGhost.Singleton);
-            InteractionInjector.RegisterInteraction<Urnstone>(ReviveGhostAsZombie.Singleton);
             return ListenerAction.Keep;
 
         }
-        static ListenerAction OnEventSimSelected(Event e)
+        /*static ListenerAction OnEventSimSelected(Event e)
         {
             var sim = e.TargetObject as Sim;
             if (!HasGrimReaperName(sim))
@@ -271,6 +260,6 @@ namespace probablyzora.GrimmyMod
                 ObjectGuid.InvalidObjectGuid, sim.ObjectId, StyledNotification.NotificationStyle.kSimTalking));
             OverrideServiceNPCProperties(sim.SimDescription);
             return ListenerAction.Keep;
-        }
+        }*/
     }
 }

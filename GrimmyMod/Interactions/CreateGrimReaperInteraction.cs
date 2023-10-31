@@ -32,6 +32,7 @@ namespace probablyzora.GrimmyMod.Interactions
 			simDescription.TraitManager.RemoveAllElements();
 			simDescription.VoiceVariation = VoiceVariationType.C;
 			Main.SetReaperTraits(simDescription);
+			Main.UpdateSimFavorites(simDescription);
 			PlumbBob.SelectedActor.Household.Add(simDescription);
 			Sim sim = simDescription.Instantiate(this.Hit.mPoint);
 			simDescription.RemoveOutfits(OutfitCategories.All,false,true);

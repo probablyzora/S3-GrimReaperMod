@@ -19,6 +19,7 @@ using Sims3.Gameplay.EventSystem;
 using Sims3.Gameplay.Objects.Alchemy;
 using Sims3.Gameplay.ThoughtBalloons;
 using Sims3.UI.CAS;
+using Sims3.Gameplay.Socializing;
 
 namespace probablyzora.GrimmyMod.Interactions
 {
@@ -49,7 +50,9 @@ namespace probablyzora.GrimmyMod.Interactions
                 return false;
             }
             ///
-
+            VisualEffect mSmokeEffect = VisualEffect.Create("reaperSmokeConstant");
+            mSmokeEffect.SetPosAndOrient(this.Target.Position, this.Target.ForwardVector, Vector3.UnitY);
+            mSmokeEffect.Start();
             //sim.PlaySoloAnimation("a_death_showOff_x");
             //sim.PlaySoloAnimation("a_death_create_x");
             //sim.PlaySoloAnimation("a_death_point_x");
@@ -66,88 +69,53 @@ namespace probablyzora.GrimmyMod.Interactions
                 simOutfit = this.Target.DeadSimsDescription.GetOutfit(OutfitCategories.Everyday, 0);
                 ThumbnailManager.GenerateHouseholdSimThumbnail(simOutfit.Key, simOutfit.Key.InstanceId, 0U, ThumbnailSizeMask.Large, ThumbnailTechnique.Default, false, false, this.Target.DeadSimsDescription.AgeGenderSpecies);
                 ThumbnailKey thumbnailKey = new ThumbnailKey(simOutfit, 0, ThumbnailSize.Large, ThumbnailCamera.Default);
-                ThoughtBalloonManager.BalloonData balloonData = new ThoughtBalloonManager.DoubleBalloonData("balloon_zombie", thumbnailKey);
-                balloonData.BalloonType = ThoughtBalloonTypes.kSpeechBalloon;
-                balloonData.mPriority = ThoughtBalloonPriority.High;
-                this.Actor.ThoughtBalloonManager.ShowBalloon(balloonData);
+                ThoughtBalloonManager.DoubleBalloonData doubleBalloonData = new ThoughtBalloonManager.DoubleBalloonData("balloon_zombie", thumbnailKey);
+                doubleBalloonData.BalloonType = ThoughtBalloonTypes.kSpeechBalloon;
+                doubleBalloonData.mPriority = ThoughtBalloonPriority.High;
+                this.Actor.ThoughtBalloonManager.ShowBalloon(doubleBalloonData);
                 base.AnimateSim("ReaperPointAtGrave");
                 base.AnimateSim("PutAwayScythe");
-                StyledNotification.Show(new StyledNotification.Format(string.Format("put away scythe", sim.SimDescription.FullName),
-                                                                      ObjectGuid.InvalidObjectGuid,
-                                                                      sim.ObjectId,
-                                                                      StyledNotification.NotificationStyle.kSimTalking));
                 base.AnimateSim("Exit");
-                StyledNotification.Show(new StyledNotification.Format(string.Format("exit", sim.SimDescription.FullName),
-                                                                      ObjectGuid.InvalidObjectGuid,
-                                                                      sim.ObjectId,
-                                                                      StyledNotification.NotificationStyle.kSimTalking));
                 base.StandardExit();
-                StyledNotification.Show(new StyledNotification.Format(string.Format("standard exit", sim.SimDescription.FullName),
-                                                                      ObjectGuid.InvalidObjectGuid,
-                                                                      sim.ObjectId,
-                                                                      StyledNotification.NotificationStyle.kSimTalking));
-
                 if (objectsound != null)
                 {
                     objectsound.Dispose();
-                    StyledNotification.Show(new StyledNotification.Format(string.Format("object sound dispose", sim.SimDescription.FullName),
-                                                                          ObjectGuid.InvalidObjectGuid,
-                                                                          sim.ObjectId,
-                                                                          StyledNotification.NotificationStyle.kSimTalking));
                     objectsound = null;
                 }
                 urnstone.GhostSpawn(false);
-                StyledNotification.Show(new StyledNotification.Format(string.Format("ghost spawn", sim.SimDescription.FullName),
-                                                                      ObjectGuid.InvalidObjectGuid,
-                                                                      sim.ObjectId,
-                                                                      StyledNotification.NotificationStyle.kSimTalking));
-                //GhostSim.DisableAutonomousInteractions();
-                StyledNotification.Show(new StyledNotification.Format(string.Format("disable autonomy", sim.SimDescription.FullName),
-                                                                      ObjectGuid.InvalidObjectGuid,
-                                                                      sim.ObjectId,
-                                                                      StyledNotification.NotificationStyle.kSimTalking));
-                if (GhostSim == null)
+                urnstone.GhostToSim(GhostSim, false, false);
+                if ((GhostSim.SimDescription.IsPet != false)&&(GhostSim.SimDescription.ChildOrBelow != false))
                 {
-                    GhostSim = urnstone.MyGhost;
+                    GhostSim.BuffManager.AddElement(BuffNames.PermaZombie, Origin.FromGrimReaper);
+                    Relationship relationship = Relationship.Get(this.Actor, GhostSim, true);
+                    relationship.UpdateSTCAndLTR(this.Actor, GhostSim, CommodityTypes.Friendly, MagicWand.CastReanimate.kRelationshipBoostWithZombie);
+                    MagicWand.BeReanimated beReanimated = MagicWand.BeReanimated.Singleton.CreateInstance(GhostSim, GhostSim, new InteractionPriority(InteractionPriorityLevel.CriticalNPCBehavior), false, false) as MagicWand.BeReanimated;
+                    beReanimated.LinkedInteractionInstance = this;
+                    GhostSim.InteractionQueue.AddNext(beReanimated);
+                    base.StandardEntry();
+                    base.BeginCommodityUpdates();
+                    base.AcquireStateMachine("ReanimationClimbOut");
+                    base.SetActor("x", GhostSim);
+                    base.StandardEntry();
+                    base.AnimateSim("climb_out");
+                    base.AddOneShotScriptEventHandler(201U, new SacsEventHandler(this.ShowZombie));
+                    base.AnimateSim("Exit");
+                    base.StandardExit();
                 }
-                urnstone.GhostToSim(GhostSim, true, false);
-                StyledNotification.Show(new StyledNotification.Format(string.Format("ghost to sim", sim.SimDescription.FullName),
-                                                                      ObjectGuid.InvalidObjectGuid,
-                                                                      sim.ObjectId,
-                                                                      StyledNotification.NotificationStyle.kSimTalking));
-                MagicWand.BeReanimated entry = MagicWand.BeReanimated.Singleton.CreateInstance(GhostSim,
-                                                                                               GhostSim,
-                                                                                               new InteractionPriority(InteractionPriorityLevel.CriticalNPCBehavior),
-                                                                                               false,
-                                                                                               false) as MagicWand.BeReanimated;
-                GhostSim.InteractionQueue.CancelAllInteractions();
-                StyledNotification.Show(new StyledNotification.Format(string.Format("cancel interactions", sim.SimDescription.FullName),
-                                                                      ObjectGuid.InvalidObjectGuid,
-                                                                      sim.ObjectId,
-                                                                      StyledNotification.NotificationStyle.kSimTalking));
-                GhostSim.InteractionQueue.Add(entry);
-                StyledNotification.Show(new StyledNotification.Format(string.Format("added entry", sim.SimDescription.FullName),
-                                                                      ObjectGuid.InvalidObjectGuid,
-                                                                      sim.ObjectId,
-                                                                      StyledNotification.NotificationStyle.kSimTalking));
-                StyledNotification.Show(new StyledNotification.Format(string.Format("before state machine", sim.SimDescription.FullName),
-                                                                      ObjectGuid.InvalidObjectGuid,
-                                                                      sim.ObjectId,
-                                                                      StyledNotification.NotificationStyle.kSimTalking));
-                /// /// /// /// /// /// /// /// /// /// /// /// /// /// HANGS UP HERE
-                StyledNotification.Show(new StyledNotification.Format(string.Format("exit", sim.SimDescription.FullName),
-                                                                      ObjectGuid.InvalidObjectGuid,
-                                                                      sim.ObjectId,
-                                                                      StyledNotification.NotificationStyle.kSimTalking));
-                GhostSim.EnableAutonomousInteractions();
-                StyledNotification.Show(new StyledNotification.Format(string.Format("enable inter", sim.SimDescription.FullName),
-                                                                      ObjectGuid.InvalidObjectGuid,
-                                                                      sim.ObjectId,
-                                                                      StyledNotification.NotificationStyle.kSimTalking));
-                EventTracker.SendEvent(EventTypeId.kCastReanimation, this.Actor, GhostSim);
+                else
+                {
+                    Relationship relationship = Relationship.Get(this.Actor, GhostSim, true);
+                    relationship.UpdateSTCAndLTR(this.Actor, GhostSim, CommodityTypes.Friendly, MagicWand.CastReanimate.kRelationshipBoostWithZombie);
+                }
+                if (mSmokeEffect != null)
+                {
+                    mSmokeEffect.Stop();
+                    mSmokeEffect.Dispose();
+                    mSmokeEffect = null;
+                }
                 EventTracker.SendEvent(EventTypeId.kZombieMaster, this.Actor, GhostSim);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 StyledNotification.Show(new StyledNotification.Format(e.ToString(),
                                         StyledNotification.NotificationStyle.kGameMessageNegative));
@@ -169,15 +137,17 @@ namespace probablyzora.GrimmyMod.Interactions
             }
             else
             {
-                return "Revive as Zombie";
+                return "Reanimate Ghost";
             }
         }
         public override bool Test(Sim sim, Urnstone urnstone, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
         {
-            if ((GameUtils.IsInstalled(ProductVersion.EP7)) & (Main.IsGrimReaper(sim) == true))
+            if ((Main.IsGrimReaper(sim) == true))
             {
-                return true;
-
+                if (urnstone.DeadSimsDescription != null)
+                {
+                    return true;
+                }
             }
             return false;
         }

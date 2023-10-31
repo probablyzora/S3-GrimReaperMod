@@ -41,6 +41,9 @@ namespace probablyzora.GrimmyMod.Interactions
                 return false;
             }
             ///
+            VisualEffect mSmokeEffect = VisualEffect.Create("reaperSmokeConstant");
+            mSmokeEffect.SetPosAndOrient(this.Target.Position, this.Target.ForwardVector, Vector3.UnitY);
+            mSmokeEffect.Start();
             base.StandardEntry();
             base.BeginCommodityUpdates();
             base.AcquireStateMachine("zora_ReaperInteractions");
@@ -48,23 +51,37 @@ namespace probablyzora.GrimmyMod.Interactions
             base.EnterSim("Enter");
             base.AnimateSim("GetScythe");
             base.AnimateSim("CreateTombstone");
-            simOutfit = this.Target.DeadSimsDescription.GetOutfit(OutfitCategories.Everyday, 0);
-            ThumbnailManager.GenerateHouseholdSimThumbnail(simOutfit.Key, simOutfit.Key.InstanceId, 0U, ThumbnailSizeMask.Large, ThumbnailTechnique.Default, false, false, this.Target.DeadSimsDescription.AgeGenderSpecies);
-            ThumbnailKey thumbnailKey = this.Target.DeadSimsDescription.GetDeceasedThumbnailKey(ThumbnailSize.Large,0);
-            ThoughtBalloonManager.BalloonData balloonData = new ThoughtBalloonManager.DoubleBalloonData("balloon_moodlet_mourning", thumbnailKey);
-            balloonData.mPriority = ThoughtBalloonPriority.High;
-            this.Actor.ThoughtBalloonManager.ShowBalloon(balloonData);
-            base.AnimateSim("ReaperPointAtGrave");
-            base.AnimateSim("PutAwayScythe");
-            base.AnimateSim("Exit");
-            base.StandardExit();
-            if (objectsound != null)
+            try
             {
-                objectsound.Dispose();
-                objectsound = null;
+                simOutfit = this.Target.DeadSimsDescription.GetOutfit(OutfitCategories.Everyday, 0);
+                ThumbnailManager.GenerateHouseholdSimThumbnail(simOutfit.Key, simOutfit.Key.InstanceId, 0U, ThumbnailSizeMask.Large, ThumbnailTechnique.Default, false, false, this.Target.DeadSimsDescription.AgeGenderSpecies);
+                ThumbnailKey thumbnailKey = this.Target.DeadSimsDescription.GetDeceasedThumbnailKey(ThumbnailSize.Large, 0);
+                ThoughtBalloonManager.BalloonData balloonData = new ThoughtBalloonManager.DoubleBalloonData("balloon_moodlet_mourning", thumbnailKey);
+                balloonData.mPriority = ThoughtBalloonPriority.High;
+                this.Actor.ThoughtBalloonManager.ShowBalloon(balloonData);
+                base.AnimateSim("ReaperPointAtGrave");
+                base.AnimateSim("PutAwayScythe");
+                base.AnimateSim("Exit");
+                base.StandardExit();
+                if (objectsound != null)
+                {
+                    objectsound.Dispose();
+                    objectsound = null;
 
+                }
+                urnstone.GhostSpawn(false);
+                if (mSmokeEffect != null)
+                {
+                    mSmokeEffect.Stop();
+                    mSmokeEffect.Dispose();
+                    mSmokeEffect = null;
+                }
             }
-            urnstone.GhostSpawn(false);
+            catch (Exception e)
+            {
+                StyledNotification.Show(new StyledNotification.Format(e.ToString(),
+                                        StyledNotification.NotificationStyle.kGameMessageNegative));
+            }
             return true;
 
         }
@@ -85,9 +102,12 @@ namespace probablyzora.GrimmyMod.Interactions
             }
             public override bool Test(Sim sim, Urnstone urnstone, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
             {
-                if (Main.IsGrimReaper(sim) == true)
+                if ((Main.IsGrimReaper(sim) == true)) 
                 {
-                    return true;
+                    if (urnstone.DeadSimsDescription != null)
+                    {
+                        return true;
+                    }
                 }
                 return false;
             }
